@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 
+from collections import namedtuple
+
 from lxml import etree
 
 
-def recursive_dict(element):
-    return element.tag, dict(map(recursive_dict, element)) or element.text
+# namedtuple в последствии можно будет заменить на класс
+# без необходимости переделки зависимого кода
+Element = namedtuple('Element', ('name', 'attrib', 'text'))
 
 
 def xml_reader(xml):
-    return etree.parse(xml).getroot().iter()
+    root = etree.iterparse(xml)
+    for _, elem in root:
+        yield Element(elem.tag, elem.attrib, elem.text)
