@@ -14,7 +14,7 @@ feed_mapping = {
         'place': Place,
         'session': Schedule,
     },
-    'models_fields': {
+    'fields': {
         'event': {
             'id': 'foreign_id',
             'age_restricted': 'age',
