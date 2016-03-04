@@ -1,27 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from collections import defaultdict
 
-
-def extract_params(element, fields):
-    result = {}
-    for field in filter(lambda k: k in fields, element.fields):
-        result[fields[field]] = element.fields[field]
-    return result
-
-
-def mapper(reader, mapping):
+def mapper(reader, parser, mapping):
     models = mapping['models']
-    for element in reader:
-        if element.name in models:
-            model_name = element.name
-            model = models[model_name]
-            model_fields = mapping['fields'][model_name]
+    model_fields = mapping['fields']
+    for model, fields in map(parser,
+                             filter(lambda e: e.name in mapping['models'], reader)):
+        klass = models[model]
+        klass_fields = model_fields[model]
+        params = {}
+        for field, value in fields.items():
+            if field in klass_fields:
+                params[klass_fields[field]] = value
 
-            params = defaultdict(list, **extract_params(element, model_fields))
-
-            for child in reader:
-                if child.name in model_fields:
-                    params[child.name].append(extract_params(child, model_fields))
-
-            yield model(**params)
+        yield klass(**params)

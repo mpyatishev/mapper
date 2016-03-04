@@ -10,12 +10,22 @@ from lxml import etree
 Element = namedtuple('Element', ('name', 'text', 'fields', 'children'))
 
 
+def _xml_reader(xml):
+    root = etree.parse(xml).getroot().iter()
+    def reader(root):
+        for elem in root:
+            text = elem.text
+            text = text.strip() if text else None
+            yield Element(elem.tag, text=text, fields=elem.attrib,
+                          children=reader(elem.iterchildren()))
+    return reader(root)
+
+
 def xml_reader(xml):
     root = etree.parse(xml).getroot()
     def reader(root):
         for elem in root.iter():
             text = elem.text
             text = text.strip() if text else None
-            yield Element(elem.tag, text=text, fields=elem.attrib,
-                        children=reader(elem))
+            yield Element(elem.tag, text=text, fields=elem.attrib, children=reader(elem))
     return reader(root)

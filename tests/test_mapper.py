@@ -18,23 +18,13 @@ class TestMapper(unittest.TestCase):
         self.source = os.path.join(os.path.dirname(__file__), 'data', 'test.xml')
         self.mapping = {}
 
-    def test_mapper_returns_generator(self):
-        m = mapper(mock.MagicMock(), self.mapping)
-
-        self.assertIsInstance(m, Generator)
-
     def test_xml_reader_returns_generator(self):
         reader = xml_reader(self.source)
 
         self.assertIsInstance(reader, Generator)
 
-    def test_feed_parser_returns_generator(self):
-        parser = feed_parser(mock.MagicMock())
-
-        self.assertIsInstance(parser, Generator)
-
     def test_mapper_returns_model_with_filled_params(self):
-        Event = mock.MagicMock()
+        Event = mock.MagicMock
         mapping = {
             'models': {
                 'event': Event
@@ -72,22 +62,22 @@ class TestMapper(unittest.TestCase):
 </feed>"""
 
         reader = xml_reader(BytesIO(source.encode()))
-        mapped_models = mapper(reader, mapping)
+        parser = feed_parser(mapping['fields'])
+        mapped_models = mapper(reader, parser, mapping)
 
         model = next(mapped_models)
 
-        self.assertEquals(model.incoming_id, 93492)
+        self.assertEquals(model.incoming_id, '93492')
+        self.assertEquals(model.title, 'Kodaline')
 
     def test_parser_returns_dict(self):
         Event = mock.MagicMock()
-        Tag = mock.MagicMock()
-        Image = mock.MagicMock()
         mapping = {
             'models': {
                 'event': Event,
             },
             'fields': {
-                'event': ('id', 'title', 'text', 'age_restricted')
+                'event': ('id', 'title', 'text', 'age_restricted', 'tag', 'image')
             }
         }
 
@@ -111,24 +101,23 @@ class TestMapper(unittest.TestCase):
 </feed>"""
 
         reader = xml_reader(BytesIO(source.encode()))
-        parser = feed_parser(mapping['models'], mapping['fields'])
-        d = next(next(map(parser, filter(lambda e: e.name in mapping['models'], reader))))
+        parser = feed_parser(mapping['fields'])
+        d = next(map(parser, filter(lambda e: e.name in mapping['models'], reader)))
 
-        expected = (Event, {
+        expected = ('event', {
             'id': '93492',
             'price': 'true',
             'type': 'concert',
             'title': 'Kodaline',
             'age_restricted': '18+',
-            'text': ''
+            'text': '',
+            'tag': ['18+', 'концерт', 'рок и рок-н-ролл'],
+            'image': {
+                'href': 'http://test.kudago.com/media/images/event/00/69/0069659af8601e1d1560886ae9dd75b1.jpg'
+            },
         })
 
-        # 'tag': ['18+', 'концерт', 'рок и рок-н-ролл'],
-        # 'image': [{
-        #     'href': 'http://test.kudago.com/media/images/event/00/69/0069659af8601e1d1560886ae9dd75b1.jpg'
-        # }],
 
-        print(d, expected)
         self.assertEquals(d, expected)
 
 
