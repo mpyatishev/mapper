@@ -1,15 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from django.db import models
+import pprint
 
 
-class Event(models.Model):
+class Model:
+    def __init__(self, **kwargs):
+        for attr, val in kwargs.items():
+            self.__setattr__(attr, val)
+
+    def save(self):
+        pprint.pprint(self.__dict__)
+
+
+class Event(Model):
     pass
 
 
-class Place(models.Model):
+class Place(Model):
     pass
 
 
-class Schedule(models.Model):
+class Schedule(Model):
     pass
