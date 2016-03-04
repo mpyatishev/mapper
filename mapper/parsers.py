@@ -2,7 +2,22 @@
 
 
 def feed_parser(model_fields):
+    """Функция производит разбор последовательности состоящей из Element
+    в соответствии с определенными для модели полями.
+
+    arguments:
+        model_fields -- последовательность, содержащия определенныя для модели поля
+
+    return:
+        parser -- функция-парсер
+    """
     def parser(elem):
+        """
+        return:
+            кортеж из названия объекта (ключ в model_fields) и словаря параметров.
+            Например:
+                ('event', {'id': '2323', 'type': 'concert'})
+        """
         result = dict(text=elem.text, **elem.fields)
         fields = model_fields[elem.name]
         for child in elem.children:

@@ -2,6 +2,16 @@
 
 
 def mapper(reader, parser, mapping):
+    """Функция производит сопоставление полей для модели.
+
+    arguments:
+        reader -- последовательность объектов Element
+        parser -- функция-парсер
+        mapping -- словарь с описанием сопоставления полей модели
+
+    return:
+        последовательность инициализированных объектов
+    """
     models = mapping['models']
     model_fields = mapping['fields']
     for model, fields in map(parser,
