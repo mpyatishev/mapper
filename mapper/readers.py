@@ -21,9 +21,9 @@ def xml_reader(xml):
         генератор
     """
     root = etree.parse(xml).getroot()
+
     def reader(root):
-        for elem in root.iter():
-            text = elem.text
-            text = text.strip() if text else None
-            yield Element(elem.tag, text=text, fields=elem.attrib, children=reader(elem))
+        return (Element(elem.tag, text=elem.text.strip() if elem.text else None,
+                        fields=elem.attrib, children=reader(elem))
+                for elem in root.iter())
     return reader(root)
